@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/time.h>
 
 void vec_sum(float *A, int N);
 double get_time();
@@ -23,9 +24,9 @@ int main(int argc, char** argv){
 	}
 	
 	number_elements = size_kb / sizeof(float);
-	array = malloc(sizeof(float)*number_elements);
+	array = (float *) malloc(sizeof(float)*number_elements);
 	if (array == NULL){
-		fprintf("calloc error");		
+		fprintf(stderr, "calloc error");
 		return -1;
 	}
 
@@ -33,25 +34,32 @@ int main(int argc, char** argv){
 		array [i] = 1.0;
 	}
 
-	for(limit = 1; end_time-start_time <= 1000000000; limit *= 2){
+    #pragma novector
+    #pragma nounroll
+	for(limit = 1; end_time-start_time <= 1.0; limit *= 2){
 
+        start_time = get_time();
+        #pragma novector
+        #pragma nounroll
 		for(int i = 0; i < limit; ++i){
-			
-			
+            vec_sum(array, number_elements);
 		}
-
-
+        end_time = get_time();
 	}
+    
+    limit /= 2;
+    
+    printf("%d MUp/s", limit*number_elements);
+    
 	return 0;
 }
 
 
 double get_time(){
-	struct timespec *t;
-	if( clock_gettime(CLOCK_REALTIME, struct timespec *t) )
-		return (double)(t->tv_sec) + (((double)(t->tv_nsec))/1000000000.0);
-	else
-		return -1;
+    struct timespec a;
+    clock_gettime(CLOCK_MONOTONIC, &a);
+    double t = (double) a.tv_nsec / (1000000000.0) + (double) a.tv_sec;
+    return t;
 
 }
 

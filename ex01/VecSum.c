@@ -6,6 +6,4 @@ void vec_sum(float *A, int N){
 	for(int i = 0; i < N; ++i){
 		sum += A[i];
 	}
-
-
 } 
