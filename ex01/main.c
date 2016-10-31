@@ -23,34 +23,37 @@ int main(int argc, char** argv){
 		size_kb = atoi(argv[1]);
 	}
 	
-	number_elements = size_kb / sizeof(float);
+	number_elements = size_kb*1024.0 / sizeof(float);
 	array = (float *) malloc(sizeof(float)*number_elements);
 	if (array == NULL){
-		fprintf(stderr, "calloc error");
+		fprintf(stderr, "malloc error");
 		return -1;
 	}
+
+//TODO:LOOPUNROLLING
 
 	for(int i = 0; i < number_elements; ++i){
 		array [i] = 1.0;
 	}
 
-    #pragma novector
-    #pragma nounroll
+    	#pragma novector
+    	#pragma nounroll
 	for(limit = 1; end_time-start_time <= 1.0; limit *= 2){
 
-        start_time = get_time();
-        #pragma novector
-        #pragma nounroll
+        	start_time = get_time();
+        	#pragma novector
+        	#pragma nounroll
 		for(int i = 0; i < limit; ++i){
-            vec_sum(array, number_elements);
+            		vec_sum(array, number_elements);
 		}
-        end_time = get_time();
+        	end_time = get_time();
 	}
     
-    limit /= 2;
+   	limit /= 2;
+	float mups = limit*number_elements/1000000.0/(end_time-start_time);
     
-    printf("%d MUp/s", limit*number_elements);
-    
+   	// printf("%.2f MUp/s \t %d limit \n", mups, limit);
+    	printf("%.2f \n", mups);
 	return 0;
 }
 
