@@ -3,4 +3,5 @@ set xlabel "kb"
 set ylabel "MUps"
 set autoscale
 set logscale x
-plot 'output.txt' i 0 t "kein unrolling", '' i 1 t "2-faches unrolling", '' i 2 t "3-faches unrolling", '' i 3 t "4-faches unrolling", '' i 4 t "8-faches unrolling"  
+plot "input_sizes.txt" i 0 u 1:2 with lines title columnheader(1), "input_sizes.txt" i 1 u 1:2 with lines title columnheader(1), "input_sizes.txt" i 2 u 1:2 with lines title columnheader(1), "input_sizes.txt" i 3 u 1:2 with lines title columnheader(1), "input_sizes.txt" i 4 u 1:2 with lines title columnheader(1)
+pause -1 
