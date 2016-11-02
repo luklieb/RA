@@ -1,6 +1,7 @@
 set title "kB vs. MUps"
 set xlabel "kb"
 set ylabel "MUps"
+set key outside
 set autoscale
 set logscale x
 plot "input_sizes.txt" i 0 u 1:2 with lines title columnheader(1), "input_sizes.txt" i 1 u 1:2 with lines title columnheader(1), "input_sizes.txt" i 2 u 1:2 with lines title columnheader(1), "input_sizes.txt" i 3 u 1:2 with lines title columnheader(1), "input_sizes.txt" i 4 u 1:2 with lines title columnheader(1)
