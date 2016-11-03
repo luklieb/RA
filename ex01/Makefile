@@ -1,4 +1,4 @@
-CXX = gcc
+CXX = icc
 
 INCLUDES =
 LDFLAGS =
@@ -10,10 +10,14 @@ src = $(wildcard *.c)
 obj = $(src:.c=.o)
 
 LDFLAGS = 
-CXXFLAGS = -O3
+CXXFLAGS = -O3 -xHost
 
-$(target): $(obj)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) 
+$(target): VecSum.o main.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+main.o: main.c
+	$(CXX) $(CXXFLAGS) -c -o $@ $^ 
+VecSum.o: VecSum.c
+	$(CXX) $(CXXFLAGS) -c -o $@ $^ 
 
 .PHONY: clean
 clean:
