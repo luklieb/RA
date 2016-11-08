@@ -1,4 +1,4 @@
-CXX = icc
+CXX = gcc
 
 INCLUDES =
 LDFLAGS =
@@ -10,7 +10,7 @@ src = $(wildcard *.c)
 obj = $(src:.c=.o)
 
 LDFLAGS = 
-CXXFLAGS = -O3 -xHost
+CXXFLAGS = -O3 -Wall -Wpedantic
 
 $(target): VecSum.o main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)

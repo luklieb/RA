@@ -3,7 +3,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-float vec_sum(float *A, int N);
+void vec_sum(float *A, int N);
 float vec_sum_2(float *A, int N);
 float vec_sum_3(float *A, int N);
 float vec_sum_4(float *A, int N);
@@ -36,7 +36,7 @@ int main(int argc, char** argv){
 		fprintf(stderr, "malloc error");
 		return -1;
 	}
-	switch(loop) {
+	/*switch(loop) {
         	case 1: calculate = vec_sum; break;
                 case 2: calculate = vec_sum_2; break;
                 case 3: calculate = vec_sum_3; break;
@@ -44,6 +44,7 @@ int main(int argc, char** argv){
                 case 8: calculate = vec_sum_8; break;
                 default: fprintf(stderr, "wrong function call in switch case \n"); break;
          }
+	*/
 	int i = 0;
 	for(i = 0; i < number_elements; ++i){
 		array [i] = 1.0;
@@ -54,7 +55,7 @@ int main(int argc, char** argv){
 
         	start_time = get_time();
 		for(j = 0; j < limit; ++j){
-			calculate(array, number_elements);
+			vec_sum(array, number_elements);
 		}
         	end_time = get_time();
 		//printf("%f start, %f end \n", start_time, end_time);

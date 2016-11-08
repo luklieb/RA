@@ -63,7 +63,7 @@ int main(int argc, char** argv){
 		grid_old[y*x_size] = 1.0;
 	}
 	
-	draw_grid(grid_new, x_size, y_size, "before.ppm");	
+	//draw_grid(grid_new, x_size, y_size, "before.ppm");	
 	while( (end_time-start_time) <= 1.0){
 
         	start_time = get_time();
@@ -78,7 +78,7 @@ int main(int argc, char** argv){
 	//	printf("%d limit \n", limit);
 		limit *= 2;
 	}
- 	draw_grid(grid_new, x_size, y_size, "after.ppm");   
+ 	//draw_grid(grid_new, x_size, y_size, "after.ppm");   
    	limit /= 2;
 	double mups = ((double)limit*(double)x_size*(double)y_size/1000000.0)/(end_time-start_time);
     

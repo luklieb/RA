@@ -1,0 +1,8 @@
+set title "kB vs. MUps"
+set xlabel "kb"
+set ylabel "MUps"
+set key outside
+set autoscale
+set logscale x
+plot "input_sizes.txt" with lines title "Jacobi"
+pause -1 

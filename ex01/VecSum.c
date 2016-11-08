@@ -1,5 +1,5 @@
 
-float vec_sum(float *A, int N){
+void vec_sum(float *A, int N){
 	int i = 0;
 	float sum = 0;
 	#pragma novector
@@ -8,7 +8,6 @@ float vec_sum(float *A, int N){
 		sum += A[i];
 		//printf("%f sum, %d iter \n", sum, i);
 	}
-	return sum;
 }
 
 float vec_sum_2(float *A, int N){
