@@ -129,3 +129,8 @@ void print_cache( vector<vector<cacheLine>> & cache, const int size_cl, const in
           }  	
 	*/
 }
+
+
+	
+
+
