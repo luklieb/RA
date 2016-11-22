@@ -4,14 +4,22 @@
 #include <vector>
 #include <cmath>
 
+#include <likwid.h>
+
+
+
 
 
 void cache_init(vector<vector<cacheLine>> & cache, const int size_cl, const int number_cl_set, const int number_sets) ;
 void print_cache( vector<vector<cacheLine>> & cache, const int size_cl, const int number_cl_set, const int number_sets);
 bool cache_access(vector<vector<cacheLine>> & cache, const int & size_cl, const int & number_cl_set, const int & number_sets, const uint64_t & address);
+float reduction_sum_modified(float *A, int N);
 
 
 using std::vector;
+
+
+
 
 int main(int argv, const char* args[]){
 
@@ -31,74 +39,131 @@ int main(int argv, const char* args[]){
 	assert( (number_cl%number_sets) == 0 );
 	const int number_cl_set = number_cl / number_sets;
 	assert( number_cl_set == asso );
-
-	//const int bits_address = 64;
-	//const int bits_word = log2(size_cl);
-	//const int bits_set = log2(number_sets);
-	//const int bits_tag = bits_address - bits_word - bits_set;
+	
+	assert( size_array%sizeof(float) == 0 );
+	float sum = 0.0;
+	
+	//float * A = new float[size_array/sizeof(float)]();	
+	void* temp = nullptr;
+	if(posix_memalign(&temp, 64, size_array))
+		std::cerr << "error memalign" << std::endl;
+	float * A = new(temp) float[size_array/sizeof(float)];
+	for(int i = 0; i < ((long)size_array)/sizeof(float); ++i){
+		A[i]=0.0001;
+	}
+	
 
 	vector<vector<cacheLine>> cache;
 	cache_init(cache, size_cl, number_cl_set, number_sets);
-	//print_cache(cache, size_cl, number_cl_set, number_sets);
 	int total_loads = 0;
 	int load_hits = 0;
 	
 	for(uint64_t i = 0; i<size_array; i += size_cl){
-		cache_access(cache, size_cl, number_cl_set, number_sets, i); 
-		
-		
+		cache_access(cache, size_cl, number_cl_set, number_sets, i); 	
 	}
-	print_cache(cache, size_cl, number_cl_set, number_sets);
 	
 	for(uint64_t i = 0; i<size_array; i += size_cl){
+		//print_cache(cache, size_cl, number_cl_set, number_sets);
+		//std::cout << std::endl << std::endl;
+		
 		total_loads ++;
 		if( cache_access(cache, size_cl, number_cl_set, number_sets, i) ){
 			load_hits ++;
 		}
 		
+		//std::cout << "cl at address: " <<  i << std::endl;
 	}
-	std::cout << "hallo" << std::endl;
-	std::cout << "Total loads: " << total_loads << ", Hits: " << load_hits << ", Hit rate: " << ((double)load_hits/(double)total_loads)*100.0 << "%" << std::endl;
+	
+	std::cout << "Total loads: " << total_loads << ", Hits: " << load_hits << ", Hit rate cacheSim: " << ((double)load_hits/(double)total_loads)*100.0 << "%" << std::endl;
 
+
+
+	LIKWID_MARKER_INIT;
+	LIKWID_MARKER_START("CACHE");
+
+	sum = reduction_sum_modified(A, size_array/sizeof(float));
+
+	LIKWID_MARKER_STOP("CACHE");
+	LIKWID_MARKER_CLOSE;
+
+
+	std::cout << sum << std::endl;
+	//delete [] A;
 	return EXIT_SUCCESS;
 }
 
+
+
+
+
+
+
+float reduction_sum_modified(float *A, int N){
+
+	float sum = 0.0;
+	for(int r = 0; r < 10000; ++r){
+		#pragma vector aligned
+		#pragma nounroll
+		for(int i = 0; i<N; i += 16){
+			sum += A[i];
+		}
+	}
+
+	return sum;
+}
+
+
+
+
+
+
 bool cache_access(vector<vector<cacheLine>> & cache, const int & size_cl, const int & number_cl_set, const int & number_sets, const uint64_t & address){
 
+
+	uint64_t tag_bits = address >> (uint64_t) (log2(size_cl)+log2(number_sets));
+	uint64_t set_bits = address >> (uint64_t) (log2(size_cl));
+	set_bits = set_bits & (uint64_t) (pow(2, log2(number_sets)) -1);
 	vector<cacheLine>::iterator it_cl;
-	vector<cacheLine>::iterator it_cl_oldest;
-	
-	for(it_cl = cache[address%number_sets].begin(); it_cl != cache[address%number_sets].end(); ++it_cl){
-		if( (*it_cl).valid() && ((*it_cl).get_address() == address)){
+	vector<cacheLine>::iterator it_cl_oldest = cache[set_bits].end();
+	int oldest = cache[set_bits].begin()->get_age();
+
+
+	for(it_cl = cache[set_bits].begin(); it_cl != cache[set_bits].end(); ++it_cl){
+		if( (*it_cl).valid() && ((*it_cl).get_tag() == tag_bits)){
 			(*it_cl).inc_age();	
 			return true; //cache hit
 		}
 	}	
 	
-	for(it_cl = cache[address%number_sets].begin(); it_cl != cache[address%number_sets].end(); ++it_cl){
-		int oldest = 0;
-		bool lru = false;
+	for(it_cl = cache[set_bits].begin(); it_cl != cache[set_bits].end(); ++it_cl){
 		if( !(*it_cl).valid() ){
-			(*it_cl).set_address(address);
+			(*it_cl).set_tag(tag_bits);
 			(*it_cl).zero_age();
 			(*it_cl).inc_age(); //evtl nicht
 			(*it_cl).set_valid(true);
 			return false; //cache miss
 		}
 		if( (*it_cl).get_age() <= oldest ){
+			//std::cout << " LRU bedingung Pointer kopie" << std::endl;
 			oldest = (*it_cl).get_age();
 			it_cl_oldest = it_cl;
 		}
 	}
-//	std::cout << "LRU von: " << std::endl;
-	(*it_cl_oldest).set_address(address);
+	if(it_cl_oldest == cache[set_bits].end()){
+		std::cerr << "nullptr fuer oldest" << std::endl;
+	}
+	(*it_cl_oldest).set_tag(tag_bits);
 	(*it_cl_oldest).zero_age();
-	//(*it_cl_oldest).inc_age(); //evtl nicht
+	(*it_cl_oldest).inc_age(); //evtl nicht
 	(*it_cl_oldest).set_valid(true);
-//	std::cout << "vor BUs fehler" << std::endl;
 	return false; //cache miss & LRU	
 	
 }
+
+
+
+
+
 
 
 void cache_init(vector<vector<cacheLine>> & cache, const int size_cl, const int number_cl_set, const int number_sets ){
