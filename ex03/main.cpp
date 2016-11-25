@@ -43,11 +43,12 @@ int main(int argv, const char* args[]){
 	assert( size_array%sizeof(float) == 0 );
 	float sum = 0.0;
 	
-	//float * A = new float[size_array/sizeof(float)]();	
-	void* temp = nullptr;
+	float * A = new float[size_array/sizeof(float)]();	
+	/*void* temp = nullptr;
 	if(posix_memalign(&temp, 64, size_array))
 		std::cerr << "error memalign" << std::endl;
 	float * A = new(temp) float[size_array/sizeof(float)];
+	*/
 	for(int i = 0; i < ((long)size_array)/sizeof(float); ++i){
 		A[i]=0.0001;
 	}
@@ -98,28 +99,13 @@ int main(int argv, const char* args[]){
 
 
 
-float reduction_sum_modified(float *A, int N){
-
-	float sum = 0.0;
-	for(int r = 0; r < 10000; ++r){
-		#pragma vector aligned
-		#pragma nounroll
-		for(int i = 0; i<N; i += 16){
-			sum += A[i];
-		}
-	}
-
-	return sum;
-}
-
-
 
 
 
 
 bool cache_access(vector<vector<cacheLine>> & cache, const int & size_cl, const int & number_cl_set, const int & number_sets, const uint64_t & address){
-
-
+		
+	bool free = false;
 	uint64_t tag_bits = address >> (uint64_t) (log2(size_cl)+log2(number_sets));
 	uint64_t set_bits = address >> (uint64_t) (log2(size_cl));
 	set_bits = set_bits & (uint64_t) (pow(2, log2(number_sets)) -1);
@@ -139,22 +125,27 @@ bool cache_access(vector<vector<cacheLine>> & cache, const int & size_cl, const 
 		if( !(*it_cl).valid() ){
 			(*it_cl).set_tag(tag_bits);
 			(*it_cl).zero_age();
-			(*it_cl).inc_age(); //evtl nicht
+			//(*it_cl).inc_age(); //evtl nicht
 			(*it_cl).set_valid(true);
-			return false; //cache miss
+			//return false; //cache miss
+			free = true;
 		}
-		if( (*it_cl).get_age() <= oldest ){
+		if( (*it_cl).get_age() >= oldest ){
 			//std::cout << " LRU bedingung Pointer kopie" << std::endl;
 			oldest = (*it_cl).get_age();
 			it_cl_oldest = it_cl;
 		}
+		(*it_cl).inc_age();
 	}
+
+	if (free)
+		return false;
 	if(it_cl_oldest == cache[set_bits].end()){
 		std::cerr << "nullptr fuer oldest" << std::endl;
 	}
 	(*it_cl_oldest).set_tag(tag_bits);
 	(*it_cl_oldest).zero_age();
-	(*it_cl_oldest).inc_age(); //evtl nicht
+	//(*it_cl_oldest).inc_age(); //evtl nicht
 	(*it_cl_oldest).set_valid(true);
 	return false; //cache miss & LRU	
 	

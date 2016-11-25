@@ -19,9 +19,10 @@
 cmake_minimum_required(VERSION 3.0.2)  
 
 # enable c++11 support
-set (CMAKE_CXX_STANDARD 11)
+#set (CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS "-Wall -std=c++11 -DLIKWID_PERFMON")
+#set(CMAKE_CXX_FLAGS "-Wall -std=c++11 -DLIKWID_PERFMON")
+set(CMAKE_CXX_FLAGS "-Wall -std=c++11")
 set(CMAKE_EXE_LINKER_FLAGS "-llikwid -pthread")
 include_directories(/apps/likwid/system/include/)
 link_directories(/apps/likwid/system/lib/)
@@ -29,5 +30,5 @@ link_directories(/apps/likwid/system/lib/)
 # add a single executable
 
 
-add_executable(cacheSim main.cpp cacheLine.cpp)
+add_executable(cacheSim main.cpp sum.cpp cacheLine.cpp)
 
