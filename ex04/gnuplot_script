@@ -1,0 +1,8 @@
+set title "kB vs. MUps"
+set xlabel "kb"
+set ylabel "MUps"
+set key outside
+set autoscale
+set logscale x
+plot "data.txt" using 1:2 with lines title "Vanilla", "data.txt" using 1:3 with lines title "SSE", "data.txt" using 1:4 with lines title "AVX"
+pause -1 

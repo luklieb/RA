@@ -1,0 +1,5 @@
+#!/bin/sh
+#PBS -l nodes=1:ppn=40:f2.2:ddr1600,walltime=0:30:00
+#PBS -N jacobi_vect
+cd /home/hpc/rzku/iwi3003h/RA/ex04 
+./gen_samples.sh 
