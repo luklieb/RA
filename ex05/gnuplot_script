@@ -1,0 +1,17 @@
+set title "MB vs. MUps"
+set xlabel "MB"
+set ylabel "MUps"
+#set key outside
+set autoscale
+set logscale x
+
+#plot 'data_ges.txt' i 0 u 1:2 w lines lw 4 lt rgb "violet" title columnheader(1), for [IDX=3:5] 'data_ges.txt' i IDX u 1:2 w lines title columnheader(1) 
+
+#plot 'data10000.txt' u 1:2 w lines title "unblocked", 'data10000.txt' u 1:3 w lines title "blocked 10000"
+
+#plot 'data5000.txt' u 1:2 w lines title "unblocked", 'data5000.txt' u 1:3 w lines title "blocked 5000", 'data10000.txt' u 1:3 w lines title "blocked 10000"
+
+plot 'data_komplett.txt' i 0 u 1:2 w lines lw 4 lt rgb "violet" title "unblocked", for [IDX=0:5] 'data_komplett.txt' i IDX u 1:3 w lines title columnheader(1) 
+
+
+pause -1 
