@@ -11,6 +11,6 @@ set size square
 #plot "data_parameter.txt" u 1:2:3 w image title " "
 set palette model HSV defined ( 0 0 1 1, 1 1 1 1 )
 set pm3d map
-splot "data_parameter.txt" w image
+splot "data_parameter.txt" w image title " "
 
 pause -1 
