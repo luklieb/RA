@@ -1,0 +1,8 @@
+set title "MB vs. MUps"
+set xlabel "MB"
+set ylabel "MUps"
+#set key outside
+set autoscale
+set logscale x
+plot "data_performance.txt" using 1:2 with lines title "avx", "data_performance.txt" using 1:3 with lines title "avx blocked 1D", "data_performance.txt" using 1:4 with lines title "avx blocked 2D"
+pause -1 

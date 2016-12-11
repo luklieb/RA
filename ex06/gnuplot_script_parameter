@@ -1,0 +1,16 @@
+set title "BX,BY vs. MUPS at 2GB"
+set xlabel "BX"
+set ylabel "BY"
+set cblabel "MUPS"
+set size square
+#set key outside
+#set autoscale
+#set logscale x
+#set pm3d interpolate 0,0
+#set cbrange[200:700]
+#plot "data_parameter.txt" u 1:2:3 w image title " "
+set palette model HSV defined ( 0 0 1 1, 1 1 1 1 )
+set pm3d map
+splot "data_parameter.txt" w image
+
+pause -1 
